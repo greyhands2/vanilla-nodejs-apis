@@ -77,7 +77,24 @@ handlers._users = {
 	// @TODO only let an authenticated user access their object and not anyone elses'
 	get: function(data, callback){
 		// check that the phone number provided is valid
-		const phone = typeof(data.queryStringObj) === 'string' && data.queryStringObj.trim().length === 10
+		const phone = (typeof(data.queryStringObj.phone) === 'string' && data.queryStringObj.phone.trim().length === 10) ? data.queryStringObj.phone.trim() : false
+
+		if(phone){
+			// lookup the user
+			_data.read('users', phone,  function(err, data1){
+				if(!err && data1){
+					// remove the hashed password from the user object before returning it to the requester
+					delete data.hashedPassword
+					callback(200, data1)
+				} else {
+					callback(404, {Error: "User not found"})
+				}
+			})
+		} else {
+			callback(400, {Error: "Missing required field"})
+		}
+
+
 	},
 	put: function(data, callback){
 
