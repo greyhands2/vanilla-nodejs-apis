@@ -9,7 +9,7 @@ const StringDecoder = require("string_decoder").StringDecoder;
 const config = require('./config.js')
 const fs = require('fs')
 const handlers = require('./lib/handlers.js')
-
+const helpers = require('./lib/helpers.js')
 
 
 
@@ -84,7 +84,7 @@ const unifiedServer = function(req, res){
 			queryStringObj,
 			method,
 			headers,
-			'payload': buffer
+			'payload': helpers.parseJSONToObject(buffer)
 		} 
 
 		// route the request to the handler

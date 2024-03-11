@@ -3,7 +3,7 @@
 
 # show any .example.js or .example.pem files
 !.example.js
-!.example.pem
+!.pem.example
 
 *.pem
 config.js

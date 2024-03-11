@@ -4,7 +4,7 @@
 // dependencies
 const fs = require('fs')
 const path = require('path')
-
+const helpers = require('./helpers.js')
 
 // container doe the module
 
@@ -45,7 +45,13 @@ lib.create = function(dir, file, data, callback){
 
 lib.read = function(dir, file, callback){
 	fs.readFile(lib.baseDir+dir+'/'+file+'.json', 'utf8', function(err, data){
-		callback(err, data)
+		if(!err && data){
+			const parsedData = helpers.parseJSONToObject(data)
+			callback(false, parsedData)
+		} else {
+			callback(err, data)
+		}
+		
 	})
 }
 

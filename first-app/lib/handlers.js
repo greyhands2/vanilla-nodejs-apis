@@ -36,10 +36,34 @@ handlers._users = {
 
 		if(firstName && lastName && password && phone && tosAgreement){
 			// make sure that the use does not already exist
-			_data.read(data.trimmedPath, phone, function(err, data){
+			_data.read('users', phone, function(err, data){
 				if(err){
 					// hash the password
 					const hashedPassword = helpers.hash(password)
+					if(hashedPassword){
+											// create the user object
+						const userObject = {
+							firstName,
+							lastName,
+							phone,
+							hashedPassword,
+							tosAgreement: true
+						}
+
+						// stor the user
+						_data.create('users', phone, userObject, function(err){
+							if(!err){
+								callback(200)
+							} else {
+								console.log(err)
+								callback(500, {Error: "Could not create the new user"})
+							}
+						})
+					} else {
+						callback(500, {Error: "Could not hash the user\'s password"})
+					}
+
+
 				} else {
 					callback(400, {Error: "User with that phone number already exists"})
 				}
@@ -49,8 +73,11 @@ handlers._users = {
 			callback("Missing required fields")
 		}
 	},
+	//required data: phone, optional data:none
+	// @TODO only let an authenticated user access their object and not anyone elses'
 	get: function(data, callback){
-
+		// check that the phone number provided is valid
+		const phone = typeof(data.queryStringObj) === 'string' && data.queryStringObj.trim().length === 10
 	},
 	put: function(data, callback){
 
