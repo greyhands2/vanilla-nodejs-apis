@@ -96,7 +96,59 @@ handlers._users = {
 
 
 	},
+	// required data: phone, 
+	// option data : firstname, lastname, password. at least one must be specified
+	// @TODO only let an authenticated user update their own object and not anyone elses'
 	put: function(data, callback){
+		// check that the phone number provided is valid
+		const phone = (typeof(data.queryStringObj.phone) === 'string' && data.queryStringObj.phone.trim().length === 10) ? data.queryStringObj.phone.trim() : false
+
+
+		//check for the optional fields
+		const firstName = typeof(data.payload.firstName) === 'string' && data.payload.firstName.trim().length > 0 ? data.payload.firstName.trim() : false
+		const lastName = typeof(data.payload.lastName) === 'string' && data.payload.lastName.trim().length > 0 ? data.payload.lastName.trim() : false
+		
+		const password = typeof(data.payload.password) === 'string' && data.payload.password.trim().length > 6 ? data.payload.password.trim() : false
+
+		if(phone){
+			// error if nothing is set to update
+			if(firstName || lastName || phone || password){
+				// lookup user
+				_data.read('users', phone, function(err, userData){
+					if(!err && userData){
+						// update the fields
+						if(firstName){
+							userData.firstName = firstName
+						}
+
+						if(lastName){
+							userData.lastName = lastName
+						}
+
+						if(password){
+							userData.hashedPassword = helpers.hash(password)
+						}
+
+						// store the new updates
+						_data.update('users', phone, userData, function(err){
+							if(!err){
+								callback(200)
+							} else {
+								callback(500, {Error: "Could not update the user"})
+							}
+						})
+					} else {
+						callback(404, {Error: "User not found"})
+					}
+				})
+			} else {
+				callback(400, {Error: "Missing field(s) to update"})
+			}
+
+		} else {
+			callback(400, {Error: "Missing required field"})
+		}
+
 
 	},
 	delete: function(data, callback){
