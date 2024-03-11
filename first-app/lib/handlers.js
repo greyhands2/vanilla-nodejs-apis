@@ -151,8 +151,33 @@ handlers._users = {
 
 
 	},
+	// required field : phone
+	// @TODO only let an authenticated user update their own object and not anyone elses'
+	// @TODO delete anyother data files associated with this user
 	delete: function(data, callback){
+			// check that the phone number provided is valid
+		const phone = (typeof(data.queryStringObj.phone) === 'string' && data.queryStringObj.phone.trim().length === 10) ? data.queryStringObj.phone.trim() : false
 
+		if(phone){
+			// lookup the user
+			_data.read('users', phone,  function(err, userData){
+				if(!err && userData){
+					// delete the user data
+					_data.delete('users', phone,  function(err){
+						if(!err){
+							callback(200)
+						} else {
+							callback(500, {Error: "Could not delete user"})
+						}
+					})
+					
+				} else {
+					callback(404, {Error: "User not found"})
+				}
+			})
+		} else {
+			callback(400, {Error: "Missing required field"})
+		}
 	},
 }
 
