@@ -51,4 +51,7 @@ helpers.createRandomString = function(strLength){
 }
 
 
+helpers.
+
+
 module.exports = helpers

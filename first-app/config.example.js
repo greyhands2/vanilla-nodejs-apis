@@ -11,7 +11,8 @@ environments.staging = {
 	httpPort: xxxx, // number
 	httpsPort: xxxx, // number
 	envName: 'xxxx', // string
-	hashingSecret: 'xxxxxxx' // string
+	hashingSecret: 'xxxxxxx', // string
+	maxChecks: x, // number
 }
 
 // production environment
@@ -19,7 +20,8 @@ environments.production = {
 	httpPort: xxxx, // number
 	httpsPort: xxxx, // number
 	envName: 'xxxx', // string
-	hashingSecret: 'xxxxxxx' // string
+	hashingSecret: 'xxxxxxx', // string
+	maxChecks: x, // number
 }
 
 // determine which environment to be passed as a command line arguement
