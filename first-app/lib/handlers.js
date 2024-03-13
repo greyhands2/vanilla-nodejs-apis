@@ -72,7 +72,27 @@ handlers._tokens = {
 			callback(400, {Error: "Missing required fields"})
 		}
 	},
+	// get token
+	// required data : id
+	// optional data: none
 	get: function(data, callback){
+		// check the id sent is valid
+		const id = (typeof(data.queryStringObj.id) === 'string' && data.queryStringObj.id.trim().length === 20) ? data.queryStringObj.id.trim() : false
+
+		if(id){
+			// lookup the user
+			_data.read('tokens', phone,  function(err, tokenData){
+				if(!err && tokenData){
+					// remove the hashed password from the user object before returning it to the requester
+					
+					callback(200, tokenData)
+				} else {
+					callback(404, {Error: "User not found"})
+				}
+			})
+		} else {
+			callback(400, {Error: "Missing required field"})
+		}
 
 	},
 	put: function(data, callback){
