@@ -103,9 +103,31 @@ handlers._tokens = {
 		const id = typeof(data.payload.id) === 'string' && data.payload.id.trim().length === 20 ? data.payload.id.trim() : false
 		const extend = typeof(data.payload.extend) === 'boolean' && data.payload.extend === true ? data.payload.extend : false
 		if(id && extend){
+			// token lookup
+			_data.read('token', id, function(err, tokenData){
+				if(!err){
+					// ensure token is not expired as users can only extend a token that is still active else login again
+					if(tokenData.expires > Date.now()){
+						// set new expiration to an hour from now
+						tokenData.expires = Date.now() + 1000 * 60 * 60
 
+						// store data update
+						_data.update('tokens', id, tokenObject, function(err){
+							if(!err){
+								callback(200)
+							} else {
+								callback(500, { Error: "Could not update token\'s expiration"})
+							}
+						})
+					} else {
+						callback(404, {Error: "Token is already expired and cannot be extended, use the login button"})
+					}
+				} else {
+					callback(404, {Error: "Token data does not exist"})
+				}
+			})
 		} else {
-			callback(400, {Error: "Missing required field"})
+			callback(400, {Error: "Missing required field(s) or are invalid"})
 		}
 	},
 
