@@ -130,9 +130,33 @@ handlers._tokens = {
 			callback(400, {Error: "Missing required field(s) or are invalid"})
 		}
 	},
-
+	// delete tokens
+	// required data is id
+	// optional data is none
 	delete: function(data, callback){
+			// check that the id number provided is valid
+		const id = (typeof(data.queryStringObj.id) === 'string' && data.queryStringObj.id.trim().length === 20) ? data.queryStringObj.id.trim() : false
 
+		if(id){
+			// lookup the token
+			_data.read('tokens', id,  function(err, tokenData){
+				if(!err && tokenData){
+					// delete the user data
+					_data.delete('tokens', id,  function(err){
+						if(!err){
+							callback(200)
+						} else {
+							callback(500, {Error: "Could not delete token"})
+						}
+					})
+					
+				} else {
+					callback(404, {Error: "User not found"})
+				}
+			})
+		} else {
+			callback(400, {Error: "Missing required field"})
+		}
 	},
 }
 
