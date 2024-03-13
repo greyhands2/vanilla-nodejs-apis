@@ -20,13 +20,35 @@ helpers.parseJSONToObject = function(jsonStr){
 	try {
 		const obj = JSON.parse(jsonStr)
 		return obj
-	} catch(err) {
+	} catch(err){
 		return {}
 	}
 	
 }
 
+// create a string of random alphanumeric characters of a given length
+helpers.createRandomString = function(strLength){
+	strLength = (typeof(strLength) === 'number' && s > 0 ) ? strLength : false
+	if(strLength){
+		// define all the possible characters
+		const possibleCharacters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 
+		let randomString = ''
+		for(let x = 0; x < strLength; x++){
+			//generate a random index between 0 to length of possible characters
+			let randomIndex = Math.floor(Math.random() * possibleCharacters.length)
+
+			// get random character
+			randomCharacter = possibleCharacters.charAt(randomIndex)
+			// append random character to string
+			randomString += randomCharacter
+
+		}
+		return randomString
+	} else {
+		return false
+	}
+}
 
 
 module.exports = helpers
