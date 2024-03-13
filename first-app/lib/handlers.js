@@ -95,8 +95,18 @@ handlers._tokens = {
 		}
 
 	},
-	put: function(data, callback){
 
+	// put token
+	// required fields, id and expires
+	// optional data is none
+	put: function(data, callback){
+		const id = typeof(data.payload.id) === 'string' && data.payload.id.trim().length === 20 ? data.payload.id.trim() : false
+		const extend = typeof(data.payload.extend) === 'boolean' && data.payload.extend === true ? data.payload.extend : false
+		if(id && extend){
+
+		} else {
+			callback(400, {Error: "Missing required field"})
+		}
 	},
 
 	delete: function(data, callback){
