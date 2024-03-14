@@ -1,5 +1,6 @@
 const _data = require('./data.js')
 const helpers = require('./helpers')
+const config = reauire('../config.js')
 //handlers
 const handlers = {}
 
@@ -47,7 +48,7 @@ handlers._checks = {
 	// checks - post
 	// required data:  protocol(http or https), url, method, successCodes, timeout seconds
 	// optional data none
-	post: function(){
+	post: function(data, callback){
 		// validate inputs
 		// check that all required fields are filled out
 		const protocol = typeof(data.payload.protocol) === 'string' && ['http', 'https'].indexOf(data.payload.protocol) > -1 ? data.payload.protocol : false
@@ -117,6 +118,166 @@ handlers._checks = {
 			
 	} else {
 		callback(400, {Error: "Missing required fields"})
+	}
+}, 
+
+// get checks
+// required data is id
+// optional data is none
+get: function(data, callback){
+	// check that id is valid
+	const id = ( typeof(data.queryStringObj.id) === 'string' && data.queryStringObj.id.trim().length === 20 ) ? data.queryStringObj.id.trim() : false
+	if(id){
+		// lookup check
+		_data.read('checks', id, function(err, checkData){
+			if(!err && checkData){
+				// get token from headers
+			// get the token from the headers
+			const token = typeof(data.headers.token) === 'string' ? data.headers.token : false
+			// verify that the token provided belongs to the user who created the check
+			handlers._tokens.verifyToken(token, checkData.userPhone, function(tokenIsValid){
+				if(tokenIsValid){
+					// return the check data
+					callback(200, checkData)
+				} else {
+					callback(403)
+				}
+			})
+		
+			} else {
+				callback(404)
+			}
+		})
+	} else {
+		callback(400, { Error: "Missing required fields"})
+	}
+}, 
+
+//put checks
+// required data: id
+// optional data : protocol, url, method, successCodes, timeoutSeconds (one must be sent)
+put: function(data, callback){
+	// get id
+	const id = ( typeof(data.queryStringObj.id) === 'string' && data.queryStringObj.id.trim().length === 20 ) ? data.queryStringObj.id.trim() : false
+	// check that all required fields are filled out
+		const protocol = typeof(data.payload.protocol) === 'string' && ['http', 'https'].indexOf(data.payload.protocol) > -1 ? data.payload.protocol : false
+		const url = typeof(data.payload.url) === 'string' && data.payload.url.trim().length > 0 ? data.payload.url.trim() : false
+		const method = typeof(data.payload.method) === 'string' && ['post', 'get', 'put', 'delete'].indexOf(data.payload.method) > -1 ? data.payload.method : false
+		const successCodes = typeof(data.payload.successCodes) === 'object' && data.payload.successCodes instanceof Array && data.payload.successCodes > 0 ? data.payload.successCodes : false
+		const timeoutSeconds = (typeof(data.payload.timeoutSeconds) === 'number' && data.payload.timeoutSeconds % 1 === 0 (&& data.payload.timeoutSeconds >=1 && data.payload.timeoutSeconds <= 5) ) ? data.payload.timeoutSeconds : false
+
+		if(id){
+			if(protocol || url || method || successCodes || timeoutSeconds) {
+				_data.read('checks', id, function(err, checkData){
+					if(!err && checkData){
+							// get token from headers
+						// get the token from the headers
+						const token = typeof(data.headers.token) === 'string' ? data.headers.token : false
+						// verify that the token provided belongs to the user who created the check
+						handlers._tokens.verifyToken(token, checkData.userPhone, function(tokenIsValid){
+							if(tokenIsValid){
+								// update the check where neccessary
+								if(protocol){
+									checkData.protocol = protocol
+								}
+								if(url){
+									checkData.url = url
+								}
+								if(method){
+									checkData.method = method
+								}
+								if(timeoutSeconds){
+									checkData.timeoutSeconds = timeoutSeconds
+								}
+
+								if(successCodes){
+									checkData.successCodes = successCodes
+								}
+
+								// store the updates
+								_data.update('checks', id, checkData, function(err){
+									if(!err){
+										callback(200)
+									} else {
+										callback(500, {Error: "Could not update the check"})
+									}
+								})
+								
+							} else {
+								callback(403)
+							}
+						})
+					} else {
+						callback(400, {Error:"Check ID did not exist"})
+					}
+				})
+			} else {
+				callback(400, { Error: "Missing fields to update"})
+			}
+		} else {
+			callback(400, { Error: "Missing required field"})
+		}
+}, 
+
+// delete check
+// required data: id
+// optional data is none
+
+delete: function(data, callback){
+	// get id and check validity
+	const id = ( typeof(data.queryStringObj.id) === 'string' && data.queryStringObj.id.trim().length === 20 ) ? data.queryStringObj.id.trim() : false
+	if(id){
+		// lookup check to be deleted
+		_data.read('checks', id, function(err, data){
+			if(!err && data){
+				// get token from headers
+				// get the token from the headers
+				const token = typeof(data.headers.token) === 'string' ? data.headers.token : false
+				// verify that the token provided belongs to the user who created the check
+				handlers._tokens.verifyToken(token, checkData.userPhone, function(tokenIsValid){
+					if(tokenIsValid){
+						// delete check data
+						_data.delete('checks',  id, function(err){
+							if(!err){
+								// lookup user
+								_data.read('users', checkData.userPhone, function(err, userData){
+									if(!err && userData){
+										const userChecks = typeof(userData.checks) === 'object' && userData.checks instanceof Array ? userData.checks : []
+										// remove the deleted check from the user's list of checks
+										const checkPosition = userChecks.indexOf(id)
+
+										if(checkPosition > -1){
+											userChecks.splice(checkPosition, 1)
+											// resave user's data
+											_data.update('users', checkData.userPhone, userData, function(err){
+												if(!err){
+													callback(200)
+												} else {
+													callback(500, {Error: "Could not update the user"})
+												}
+											})
+										} else {
+											callback(500, {Error:"Could find the check of the user's object so could not remove it"})
+										}
+									} else {
+										callback(500, {Error: "Could not find the user who created the check, so could not remove the check from the user object"})
+									}
+								})
+							} else {
+								callback(500, {Error: "Could not delete the check data"})
+							}
+						})
+						
+					} else {
+						callback(403)
+					}
+				})
+			} else {
+				callback(400, {Error: "Specified check ID doesn\'t exist"})
+			}
+		})
+	} else {
+		callback(400, { Error: "Missing required field"})
 	}
 }
 
