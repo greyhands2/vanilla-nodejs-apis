@@ -13,6 +13,11 @@ environments.staging = {
 	envName: 'xxxx', // string
 	hashingSecret: 'xxxxxxx', // string
 	maxChecks: x, // number
+	twilio:{
+		accountSid : 'xxxxxxxxxxxxxxxxxxxxxxxxxx', // string
+    	authToken : 'xxxxxxxxxxxxxxxxxxxxxxxxxx', // string
+    	fromPhone : 'xxxxxxxxxxxxxxxxxxxxxxxxxx' // string
+	},
 }
 
 // production environment
@@ -22,6 +27,11 @@ environments.production = {
 	envName: 'xxxx', // string
 	hashingSecret: 'xxxxxxx', // string
 	maxChecks: x, // number
+	twilio:{
+		accountSid : 'xxxxxxxxxxxxxxxxxxxxxxxxxx', // string
+		authToken : 'xxxxxxxxxxxxxxxxxxxxxxxxxx', // string
+		fromPhone : 'xxxxxxxxxxxxxxxxxxxxxxxxxx' // string
+	},
 }
 
 // determine which environment to be passed as a command line arguement
