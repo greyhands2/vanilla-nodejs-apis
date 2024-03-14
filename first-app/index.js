@@ -65,7 +65,7 @@ const unifiedServer = function(req, res){
 	// get the payload if there is
 	const decoder = new StringDecoder('utf8')
 
-	const buffer = '' // variable to contain the complete utf8 data
+	let buffer = '' // variable to contain the complete utf8 data
 
 	// the request object emits an event called data that contains the streams of data in the request body payload
 
@@ -121,7 +121,7 @@ const unifiedServer = function(req, res){
 // define a request router
 const router = {
 	ping : handlers.ping,
-	users: handlers.users
+	users: handlers.users,
 	tokens: handlers.tokens,
-	checks: handlers.checks
+	checks: handlers.checks,
  }

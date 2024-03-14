@@ -1,0 +1,10 @@
+# CodeSync won't sync the files in the .syncignore. It follows same format as .gitignore.
+
+
+
+# show any .example.js or .example.pem files
+!.example.js
+!.pem.example
+
+*.pem
+config.js

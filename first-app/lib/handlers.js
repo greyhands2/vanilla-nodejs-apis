@@ -1,6 +1,6 @@
 const _data = require('./data.js')
 const helpers = require('./helpers')
-const config = reauire('../config.js')
+const config = require('../config.js')
 //handlers
 const handlers = {}
 
@@ -55,7 +55,7 @@ handlers._checks = {
 		const url = typeof(data.payload.url) === 'string' && data.payload.url.trim().length > 0 ? data.payload.url.trim() : false
 		const method = typeof(data.payload.method) === 'string' && ['post', 'get', 'put', 'delete'].indexOf(data.payload.method) > -1 ? data.payload.method : false
 		const successCodes = typeof(data.payload.successCodes) === 'object' && data.payload.successCodes instanceof Array && data.payload.successCodes > 0 ? data.payload.successCodes : false
-		const timeoutSeconds = (typeof(data.payload.timeoutSeconds) === 'number' && data.payload.timeoutSeconds % 1 === 0 (&& data.payload.timeoutSeconds >=1 && data.payload.timeoutSeconds <= 5) ) ? data.payload.timeoutSeconds : false
+		const timeoutSeconds = (typeof(data.payload.timeoutSeconds) === 'number' && data.payload.timeoutSeconds % 1 === 0 && ( data.payload.timeoutSeconds >= 1 && data.payload.timeoutSeconds <= 5) ) ? data.payload.timeoutSeconds : false
 
 			if(protocol && url && method && successCodes && timeoutSeconds){
 		// get token from headers
@@ -164,7 +164,7 @@ put: function(data, callback){
 		const url = typeof(data.payload.url) === 'string' && data.payload.url.trim().length > 0 ? data.payload.url.trim() : false
 		const method = typeof(data.payload.method) === 'string' && ['post', 'get', 'put', 'delete'].indexOf(data.payload.method) > -1 ? data.payload.method : false
 		const successCodes = typeof(data.payload.successCodes) === 'object' && data.payload.successCodes instanceof Array && data.payload.successCodes > 0 ? data.payload.successCodes : false
-		const timeoutSeconds = (typeof(data.payload.timeoutSeconds) === 'number' && data.payload.timeoutSeconds % 1 === 0 (&& data.payload.timeoutSeconds >=1 && data.payload.timeoutSeconds <= 5) ) ? data.payload.timeoutSeconds : false
+		const timeoutSeconds = (typeof(data.payload.timeoutSeconds) === 'number' && data.payload.timeoutSeconds % 1 === 0 && ( data.payload.timeoutSeconds >=1 && data.payload.timeoutSeconds <= 5) ) ? data.payload.timeoutSeconds : false
 
 		if(id){
 			if(protocol || url || method || successCodes || timeoutSeconds) {
@@ -606,7 +606,34 @@ handlers._users = {
 							// delete the user data
 							_data.delete('users', phone,  function(err){
 								if(!err){
-									callback(200)
+									// dellete each checks associated with the user
+									const userChecks = typeof(userData.checks) === 'object' && userData.checks instanceof Array ? userData.checks : []
+									const checksToDelete = userChecks.length
+									if(checksToDelete > 0){
+										let checksDeleted = 0
+										let deletionErrors = false
+										// loop tjrough checks
+										userChecks.forEach(function(checkId){
+											// delete the check
+											_data.delete('checks', checkId, function(err){
+												if(err){
+													deletionErrors = true
+												}
+												checksDeleted++
+												if(checksToDelete === checksDeleted){
+													if(!deletionErrors){
+														callback(200)
+													} else {
+														callback(500, {Error: "Errors encountered while attempting to delete all of the user\'s checks,  all checks may not have been deleted from the system successfully"})
+													}
+												}
+											})
+										})
+									} else {
+										callback(200)
+									}
+
+									
 								} else {
 									callback(500, {Error: "Could not delete user"})
 								}
