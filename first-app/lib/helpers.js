@@ -54,8 +54,8 @@ helpers.createRandomString = function(strLength){
 // send sms via twilio
 helpers.sendTwilioSms = function(phone, msg, callback){
 	// validate parameters
-	const phone = typeof(phone) === 'string' && phone.trim().length === 10 ? phone : false
-	const msg = typeof(msg) === 'string' && msg.trim().length > 0 && msg.trim().length <= 1600 ? msg : false // twilio takes max of 1600 msg length
+	phone = typeof(phone) === 'string' && phone.trim().length === 10 ? phone : false
+	msg = typeof(msg) === 'string' && msg.trim().length > 0 && msg.trim().length <= 1600 ? msg : false // twilio takes max of 1600 msg length
 
 	if(phone && msg){
 		// configure twilio request payload
