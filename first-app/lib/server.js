@@ -9,7 +9,8 @@ const fs = require('fs')
 const handlers = require('./handlers.js')
 const helpers = require('./helpers.js')
 const path = require('path')
-
+const util = require('util')
+const debug = util.debuglog('server')
 
 // instantiate the server module object
 const server = {}
@@ -88,11 +89,16 @@ server.unifiedServer = function(req, res){
 				res.end(payloadString) // return the JSON
 	
 
-			// log the path the user asked for
-			console.log("the request payload is: ", buffer)
+			// if the response is 200, print green otherwise print red
+				if(statusCode === 200) {
+					debug('\x1b[32m%s\x1b[0m', `${method.toUpperCase()} /${trimmedPath} ${statusCode}`) // 32 green
+				} else {
+					debug('\x1b[31m%s\x1b[0m', `${method.toUpperCase()} /${trimmedPath} ${statusCode}`) // 31 red
+				}
+			
 		})
 
-			// send response
+			
 	
 
 	}) // note the end event would always be called whether there's data sent or not
@@ -117,13 +123,16 @@ server.router = {
 
 		server.httpPort = config.httpPort || 3000
 		server.serverHttp.listen(server.httpPort, function(){
-			console.log(`http server listening on port ${server.httpPort}`)
-		})
+			
+			console.log('\x1b[36m%s\x1b[0m', `http server listening on port ${server.httpPort}`) // light blue
+		// }) since we do not want this log to be conditional we still maintained the console.log instead of debug
 
 		server.httpsPort = config.httpsPort || 3001
 		server.serverHttps.listen(server.httpsPort, function(){
-			console.log(`https server listening on port ${server.httpsPort}`)
-		})
+		
+			console.log('\x1b[35m%s\x1b[0m', `https server listening on port ${server.httpsPort}`) // pink
+
+		})// }) since we do not want this log to be conditional we still maintained the console.log instead of debug
  }
 
 module.exports = server
