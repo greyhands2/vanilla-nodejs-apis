@@ -125,14 +125,14 @@ server.router = {
 		server.serverHttp.listen(server.httpPort, function(){
 			
 			console.log('\x1b[36m%s\x1b[0m', `http server listening on port ${server.httpPort}`) // light blue
-		// }) since we do not want this log to be conditional we still maintained the console.log instead of debug
+		 }) // since we do not want this log to be conditional we still maintained the console.log instead of debug
 
 		server.httpsPort = config.httpsPort || 3001
 		server.serverHttps.listen(server.httpsPort, function(){
 		
 			console.log('\x1b[35m%s\x1b[0m', `https server listening on port ${server.httpsPort}`) // pink
 
-		})// }) since we do not want this log to be conditional we still maintained the console.log instead of debug
+		}) //since we do not want this log to be conditional we still maintained the console.log instead of debug
  }
 
 module.exports = server
