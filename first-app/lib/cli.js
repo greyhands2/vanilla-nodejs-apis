@@ -20,6 +20,7 @@ var e = new _events()
 const cli = {}
 
 
+
 //input handlers
 e.on('man', function(str){
 	cli.responders.help()
@@ -68,7 +69,7 @@ e.on('list logs', function(str){
 })
 
 e.on('more log info', function(str){
-	cli.responders.moreLogInfo()
+	cli.responders.moreLogInfo(str)
 
 })
 
@@ -84,7 +85,8 @@ cli.responders.help = function(){
 }
 
 cli.responders.exit = function(){
-	console.log("You asked for exit")
+	
+	process.exit(0)
 }
 
 cli.responders.stats = function(){
