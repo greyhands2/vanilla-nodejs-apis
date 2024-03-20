@@ -244,7 +244,27 @@ cli.responders.listUsers = function(){
 }
 
 cli.responders.moreUserInfo = function(str){
-	console.log(`You asked for more user info based on ${str}`)
+	// get id from the string provided
+	let userId = str.split("--")[1]
+	userId = typeof(userId) === 'string' && string.trim().length === 10 ? userId.trim() : false
+
+	if(userId){
+		// lookup user
+		_data.read('users', userId, function(err){
+			if(!err && userData){
+				// remove the hased password
+				delete userData.hashedPassword
+
+				// print json object with text highlighting
+				cli.verticalSpace()
+				console.dir(userData, {
+					colors:  true
+				})
+
+				cli.verticalSpace()
+			}
+		})
+	}
 }
 
 
