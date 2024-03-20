@@ -15,6 +15,8 @@ const debug = util.debuglog('cli')
 
 const events = require('events')
 
+const _data = require('./data.js')
+
 class _events extends events{}
 
 var e = new _events()
@@ -220,7 +222,25 @@ cli.responders.stats = function(){
 }
 
 cli.responders.listUsers = function(){
-	console.log("You asked for list users")
+	_data.list('users', function(err, userIds){
+		if(!err && userIds.length > 0){
+			cli.verticalSpace()
+			userIds.forEach(function(userId){
+				_data.read('users', userId, function(err, userData){
+					if(!err && userData){
+						let line = `Name: ${userData.firstName} ${userData.lastName} Phone: ${userData.phone} Checks: `
+						let numberOfChecks = ( typeof(userData.checks) === 'object' && userData.checks instanceof Array && userData.checks.length > 0 ) ? userData.checks.length : 0
+
+						line+=numberOfChecks
+						console.log(line)
+						cli.verticalSpace()
+					}
+				})
+			})
+		} else {
+			console.log('\x1b[31m%s\x1b[0m', 'No users found')
+		}
+	})
 }
 
 cli.responders.moreUserInfo = function(str){
