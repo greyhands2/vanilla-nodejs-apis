@@ -269,7 +269,38 @@ cli.responders.moreUserInfo = function(str){
 
 
 cli.responders.listChecks = function(str){
-	console.log(`You asked for list checks based on ${str}`)
+	// list checks
+	_data.list('checks', function(err, checkIds){
+		if(!err && checkIds && checkIds instanceof Array && checkIds.length > 0){
+			cli.verticalSpace()
+			checkIds.forEach(function(checkId){
+				_Data.read('checks', checkId, function(err, checkData){
+					let includeCheck = false
+					let lowerString = str.toLowerCase()
+
+					// get state, default to down
+					let state = typeof(checkData.state) === 'string' ? checkData.state : 'down'
+
+					// get the state default to unknown
+					let stateOrUnknown = typeof(checkData.state) === 'string' ? checkData.state : 'unknown'
+
+					// if the user has specified the state or hasn't specified any state include the current accordingly
+					if(lowerString.indexOf('--'+state) > -1 || (lowerString.indexOf('--down') === -1 && lowerString.indexOf('--up') === -1) ){
+						let line = `ID: ${checkData.id} ${checkData.method.toUpperCase()} ${checkData.protocol}://${checkData.url} State: ${stateOrUnknown}`
+						console.log(line)
+						cli.verticalSpace()
+					}
+
+				})
+			})
+		} else {
+			console.log('\x1b[31m%s\x1b[0m', 'No checks found')
+		}
+	})
+
+
+	
+
 }
 
 cli.responders.moreCheckInfo = function(str){
