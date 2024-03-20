@@ -17,6 +17,10 @@ const events = require('events')
 
 const _data = require('./data.js')
 
+const _logs = require('./logs.js')
+
+const helpers = require('./helpers.js')
+
 class _events extends events{}
 
 var e = new _events()
@@ -97,7 +101,7 @@ cli.responders.help = function(){
 		'more user info --{userId}': 'Show details of a specific user',
 		'list checks --up --down': 'Show a list of all the active checks in the system including their state. The "--up" and "--down" flags are both optional',
 		'more check info --{checkId}': 'Show details of a specified check',
-		'list logs': 'Show a list of all the log files available to be read (compressed and uncompressed)',
+		'list logs': 'Show a list of all the log files available to be read (compressed only)',
 		'more log info --{fileName}': 'Show details of a specified log file',
 	} 
 
@@ -246,11 +250,11 @@ cli.responders.listUsers = function(){
 cli.responders.moreUserInfo = function(str){
 	// get id from the string provided
 	let userId = str.split("--")[1]
-	userId = typeof(userId) === 'string' && string.trim().length === 10 ? userId.trim() : false
+	userId = typeof(userId) === 'string' && userId.trim().length === 10 ? userId.trim() : false
 
 	if(userId){
 		// lookup user
-		_data.read('users', userId, function(err){
+		_data.read('users', userId, function(err, userData){
 			if(!err && userData){
 				// remove the hased password
 				delete userData.hashedPassword
@@ -304,15 +308,67 @@ cli.responders.listChecks = function(str){
 }
 
 cli.responders.moreCheckInfo = function(str){
-	console.log(`You asked for more check info based on ${str}`)
+	// get id from the string provided
+	let checkId = str.split("--")[1]
+	checkId = typeof(checkId) === 'string' && checkId.trim().length === 10 ? checkId.trim() : false
+
+	if(checkId){
+		// lookup user
+		_data.read('checks', checkId, function(err, checkData){
+			if(!err && checkData){
+				
+
+				// print json object with text highlighting
+				cli.verticalSpace()
+				console.dir(checkData, {
+					colors:  true
+				})
+
+				cli.verticalSpace()
+			}
+		})
+	}
 }
 
 cli.responders.listLogs = function(){
-	console.log("You asked for list logs")
+	_logs.list(true, function(err, logFileNames){
+		if(!err && logFileNames && logFileNames instanceof Array && logFileNames.length > 0) {
+			cli.verticalSpace()
+			logFileNames.forEach(function(logFileName){
+				if(logFileName.indexOf('-') > -1){
+					console.log(logFileName)
+					cli.verticalSpace()
+				}
+			})
+		} else {
+			console.log('\x1b[31m%s\x1b[0m', 'No logs')
+		}
+	})
 }
 
 cli.responders.moreLogInfo = function(str){
-	console.log(`You asked for more log info based on ${str}`)
+	// get id from the string provided
+	let logFileName = str.split("--")[1]
+	logFileName = typeof(logFileName) === 'string' && logFileName.trim().length === 10 ? logFileName.trim() : false
+
+	if(logFileName){
+		cli.verticalSpace()
+		// decompress the logfile
+		_lods.decompress(logFileName, function(err, stringData){
+			if(!err && stringData){
+				// split into lines
+				let arr = stringData.split('\n')
+				arr.forEach(function(jsonString){
+					let logObject = helpers.parseJSONToObject(jsonString)
+					if(logObject && JSON.stringify(logObject) !== '{}'){
+						console.dir(logObject, {colors: true})
+						cli.verticalSpace()
+					}
+				})
+			}
+		})
+		
+	}
 }
 
 //input processor
