@@ -21,6 +21,8 @@ const _logs = require('./logs.js')
 
 const helpers = require('./helpers.js')
 
+const childProcess = require('child_process')
+
 class _events extends events{}
 
 var e = new _events()
@@ -330,9 +332,29 @@ cli.responders.moreCheckInfo = function(str){
 	}
 }
 
+cli.responders.listLogsWithChildProcess = function(){
+	// using child process instead to through the terminal/shell of this running app, ipen the directory where the files are and pipe the results into an array to be returned in our cli service
+			let ls = childProcess.spawn('ls', ['./.logs/'])
+			ls.stdout.on('data', function(dataObject){
+				// explode into seperate lines
+				let dataStr = dataObject.toString()
+				let logFileNames = dataStr.split('\n')
+
+				cli.verticalSpace()
+				logFileNames.forEach(function(logFileName){
+					if(typeof(logFileName) === 'string' && logFileName.length > 0 && logFileName.indexOf('-') > -1){
+						console.log(logFileName.trim().split('.')[0])
+						cli.verticalSpace()
+					}
+				})
+			})
+}
+
 cli.responders.listLogs = function(){
 	_logs.list(true, function(err, logFileNames){
 		if(!err && logFileNames && logFileNames instanceof Array && logFileNames.length > 0) {
+			
+
 			cli.verticalSpace()
 			logFileNames.forEach(function(logFileName){
 				if(logFileName.indexOf('-') > -1){

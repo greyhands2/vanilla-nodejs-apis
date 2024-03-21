@@ -1,3 +1,7 @@
+Note the index-cluster.js is a version of the app that takes advantage of node's cpu cluster capabilities 
+
+Note: for the child process implementation we ude the cli service
+
 Run Command
 
 ENV_NAME=staging node index.js
@@ -16,6 +20,10 @@ NODE_ENV=staging node --use_strict index-strict.js
 using the Node Debugger
 
 NODE_ENV=staging node inspect index-debug.js 
+
+
+run with performance check
+NODE_ENV=staging NODE_DEBUG=performance node index.js
 
 when using the debugger use "cont" for continue the execution, "next" to step to the next breakpoint, "in" to step in,  "out" to step out and "pause" to pause it.
 You can also use "repl" instead of "cont" to programmatically  work on the values
@@ -67,6 +75,15 @@ Nodejs Libaries used here
 * Error
 
 * Assert
+
+* DNS
+
+* Performance Hooks
+
+* Cluster being ablt to use all the cores in your machine
+
+* Child processes: drop down to shell and do stuff in the system 
+
 
 
 
