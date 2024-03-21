@@ -61,3 +61,13 @@ Nodejs Libaries used here
 * V8
 
 * Readline
+
+* Debugger :breakpoints commands like cont, repl, in, out, etc
+
+* Error
+
+* Assert
+
+
+
+
