@@ -87,7 +87,7 @@ server.unifiedServer = function(req, res){
 			
 	
 
-	}) // note the end event would always be called whether there's data sent or not
+	}) // note the end event would always be called whether there is data sent or not
 
 
 }
