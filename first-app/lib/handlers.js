@@ -1,6 +1,9 @@
 const _data = require('./data.js')
 const helpers = require('./helpers')
 const config = require('../config.js')
+const _performance = require('perf_hooks').performance
+const util = require('util')
+const debug = util.debuglog('performance')
 //handlers
 const handlers = {}
 
@@ -307,17 +310,24 @@ delete: function(data, callback){
 // container for  token methods
 handlers._tokens = {
 	post: function(data, callback){
+		_performance.mark('entered function')
 		const phone = typeof(data.payload.phone) === 'string' && data.payload.phone.trim().length === 10 ? data.payload.phone.trim() : false
 		const password = typeof(data.payload.password) === 'string' && data.payload.password.trim().length > 6 ? data.payload.password.trim() : false
-
+		_performance.mark('input validated')
 		if(phone && password){
+
+			_performance.mark('beginning user lookup')
 			// lookup user
 			_data.read('users', phone, function(err, userData){
+				_performance.mark('user lookup complete')
 				if(!err){
 					// hash sent password and compare to password stored in the user object
+					_performance.mark('beginning password hashing')
 					const hashedPassword = helpers.hash(password)
+					_performance.mark('password hashing complete')
 					if(userData.hashedPassword === hashedPassword){
 						// if valid create a new token with a random and set expiration date 1 hour into the future
+						_performance.mark('creating data for token')
 						const tokenId = helpers.createRandomString(20)
 						const expires = Date.now() + 1000 * 60 * 60
 						const tokenObject = {
@@ -325,7 +335,32 @@ handlers._tokens = {
 							id: tokenId,
 							expires: expires
 						}
+
+
+						_performance.mark('beginning storing token')
+						// store token
 						_data.create('tokens', tokenId, tokenObject,  function(err){
+							_performance.mark('storing token complete')
+
+							// GATHER ALL THE PERFOEMANCE MEASUREMENTS
+							_performance.measure('Beginning to End', 'entered function', 'storing token complete')
+
+							_performance.measure('validating user input', 'entered function', 'inputs validated')
+
+							_performance.measure('User lookup', 'beginning user lookup', 'user lookup complete')
+
+							_performance.measure('Password hashing', 'beginning password hashing', 'password hashing complete')
+
+							_performance.measure('Token data creation', 'creating data for token', 'beginning storing token')
+
+							_performance.measure('Storing token', 'beginning storing token', 'storing token complete')
+
+							// log out all performance meassurements
+							let measurements = _performance.getEntriesByType('measure')
+							measurements.forEach(function(measurement){
+								debug('\x1b[33m%s\x1b[0m', 'https server listening on port', `${measurement.name} ${measurement.duration}`) 
+							})
+
 							if(!err){
 								callback(200, tokenObject)
 							} else {
