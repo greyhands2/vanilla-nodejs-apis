@@ -1,3 +1,7 @@
+Note the index-cluster.js is a version of the app that takes advantage of node's cpu cluster capabilities 
+
+Note: for the child process implementation we ude the cli service
+
 Run Command
 
 ENV_NAME=staging node index.js
@@ -71,6 +75,15 @@ Nodejs Libaries used here
 * Error
 
 * Assert
+
+* DNS
+
+* Performance Hooks
+
+* Cluster being ablt to use all the cores in your machine
+
+* Child processes: drop down to shell and do stuff in the system 
+
 
 
 
