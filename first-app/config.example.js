@@ -6,11 +6,26 @@
 
 const environments = {}
 
+// testing envirionment
+environments.testing = {
+	httpPort: xxxx, // number
+	httpsPort: xxxx, // number
+	envName: 'testing', // string
+	hashingSecret: 'xxxxxxx', // string
+	maxChecks: x, // number
+	twilio:{
+		accountSid : 'xxxxxxxxxxxxxxxxxxxxxxxxxx', // string
+    	authToken : 'xxxxxxxxxxxxxxxxxxxxxxxxxx', // string
+    	fromPhone : 'xxxxxxxxxxxxxxxxxxxxxxxxxx' // string
+	},
+}
+
+
 // staging (default) envirionment
 environments.staging = {
 	httpPort: xxxx, // number
 	httpsPort: xxxx, // number
-	envName: 'xxxx', // string
+	envName: 'staging', // string
 	hashingSecret: 'xxxxxxx', // string
 	maxChecks: x, // number
 	twilio:{
@@ -25,7 +40,7 @@ environments.production = {
 	httpPort: xxxx, // number
 	httpsPort: xxxx, // number
 	envName: 'xxxx', // string
-	hashingSecret: 'xxxxxxx', // string
+	hashingSecret: 'production', // string
 	maxChecks: x, // number
 	twilio:{
 		accountSid : 'xxxxxxxxxxxxxxxxxxxxxxxxxx', // string

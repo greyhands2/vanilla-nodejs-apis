@@ -10,8 +10,12 @@ const cli  = require('./lib/cli.js')
 // Declare the app
 const app = {}
 
+
+// delare a global that strict mode should catch
+foo = 'bar'
+
 // init function
-app.init = function(callback){
+app.init = function(){
 	// start the server
 	server.init()
 
@@ -21,16 +25,12 @@ app.init = function(callback){
 	// start the cli but make sure it starts last
 	setTimeout(function(){
 		cli.init()
-		callback()
 	}, 50)
 }
 
 
-// self invoking only if required directly
-if(require.main === module){ // if another module like server js requires this file then let it auto init itself with the line in this if block else do nothing
-	app.init(function(){})
-}
-
+// execute function
+app.init()
 
 
 

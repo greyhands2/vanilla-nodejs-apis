@@ -15,17 +15,17 @@ const debug = util.debuglog('server')
 // instantiate the server module object
 const server = {}
 // instantiate http server
-		server.serverHttp = http.createServer(function(req, res){
-			return server.unifiedServer(req, res)
-		})
+server.serverHttp = http.createServer(function(req, res){
+	return server.unifiedServer(req, res)
+})
 
-		// instantiate https server
-		server.httpsServerOptions={}
-		server.httpsServerOptions.key = fs.readFileSync(path.join(__dirname, '/../https/key.pem'))
-		server.httpsServerOptions.cert = fs.readFileSync(path.join(__dirname, '/../https/cert.pem')) 
-		server.serverHttps = https.createServer(server.httpsServerOptions, function(req, res){
-			return server.unifiedServer(req, res)
-		})
+// instantiate https server
+server.httpsServerOptions={}
+server.httpsServerOptions.key = fs.readFileSync(path.join(__dirname, '/../https/key.pem'))
+server.httpsServerOptions.cert = fs.readFileSync(path.join(__dirname, '/../https/cert.pem')) 
+server.serverHttps = https.createServer(server.httpsServerOptions, function(req, res){
+	return server.unifiedServer(req, res)
+})
 
 
 // All the server logic for both htp and https
@@ -72,9 +72,30 @@ server.unifiedServer = function(req, res){
 			'payload': helpers.parseJSONToObject(buffer)
 		} 
 
-		// route the request to the handler
-		chosenHandler(data, function(statusCode, payload){
-			// use the status code called back by the handler or default to 200
+		try {
+			// route the request to the handler
+			chosenHandler(data, function(statusCode, payload){
+				server.processHandlerResponse(res, method, trimmedPath, statusCode, payload,  'json')
+				
+			})
+		} catch(e) {
+			debug(e)
+			server.processHandlerResponse(res, method, trimmedPath, 500, {Error: "An unknown error has occured"}, 'json')
+		}
+		
+
+			
+	
+
+	}) // note the end event would always be called whether there's data sent or not
+
+
+}
+
+// process the response from thehandler
+server.processHandlerResponse = function(res, method, trimmedPath, statusCode, payload,  contentType){
+			contentType = typeof(contentType) === 'string' ? contentType : 'json'
+				// use the status code called back by the handler or default to 200
 			statusCode = typeof(statusCode) === 'number' ? statusCode : 200
 
 
@@ -84,7 +105,7 @@ server.unifiedServer = function(req, res){
 			// convert to string
 			payloadString = JSON.stringify(payload)
 
-				res.setHeader('Content-Type', 'application/json') // tell the client we are returning JSON
+				res.setHeader('Content-Type', `application/${contentType}`) // tell the client we are returning JSON
 				res.writeHead(statusCode) // set a status code
 				res.end(payloadString) // return the JSON
 	
@@ -95,25 +116,15 @@ server.unifiedServer = function(req, res){
 				} else {
 					debug('\x1b[31m%s\x1b[0m', `${method.toUpperCase()} /${trimmedPath} ${statusCode}`) // 31 red
 				}
-			
-		})
-
-			
-	
-
-	}) // note the end event would always be called whether there's data sent or not
-
-
 }
-
-
 
 // define a request router
 server.router = {
-	ping : handlers.ping,
-	users: handlers.users,
-	tokens: handlers.tokens,
-	checks: handlers.checks,
+	'ping' : handlers.ping,
+	'api/users' : handlers.users,
+	'auth/tokens' : handlers.tokens,
+	'api/checks' : handlers.checks,
+	'examples/error' : handlers.exampleError
  }
 
 

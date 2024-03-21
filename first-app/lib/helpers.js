@@ -5,6 +5,13 @@ const config = require('../config.js')
 const https = require('https')
 const helpers = {}
 
+// sample for testing that simply returns a number
+
+helpers.getANumber = function(){
+	return Math.floor(Math.random() * 100)
+}
+
+
 // create a SHA256 hash
 helpers.hash = function(str){
 	if(typeof(str) === 'string' && str.length.trim() > 0){

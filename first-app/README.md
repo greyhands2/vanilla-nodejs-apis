@@ -3,12 +3,22 @@ Run Command
 ENV_NAME=staging node index.js
 ENV_NAME=production node index.js
 
-
+To run the tests
+node test 
 
 start up app with debug messages for only the workers file for example
 NODE_DEBUG=workers NODE_ENV=staging node index.js
 
+To run in strict mode:
 
+NODE_ENV=staging node --use_strict index-strict.js
+
+using the Node Debugger
+
+NODE_ENV=staging node inspect index-debug.js 
+
+when using the debugger use "cont" for continue the execution, "next" to step to the next breakpoint, "in" to step in,  "out" to step out and "pause" to pause it.
+You can also use "repl" instead of "cont" to programmatically  work on the values
 
 Nodejs Libaries used here
 * Commandline Options:  we were able to start the app with env variables such as NODE_DEBUG, NODE_ENV
@@ -43,3 +53,11 @@ Nodejs Libaries used here
 * Zlib : we used it for compression and decompression
 
 * Stream
+
+* Events
+
+* OS 
+
+* V8
+
+* Readline
