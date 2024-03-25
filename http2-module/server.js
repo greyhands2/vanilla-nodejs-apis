@@ -18,3 +18,6 @@ server.on('stream', function(stream, headers){
 
 	stream.end('<html><body><p>Hello World</p></body></html>')
 })
+
+// listen on 6000
+server.listen(6000)
